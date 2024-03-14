@@ -1,0 +1,111 @@
+name: Deploy to TestFlight and Android App Store
+
+on:
+  # TODO: Uncomment the following lines to enable automatic deployment upon any
+  #       push to the `main` branch.
+  # push:
+  #   branches:
+  #     - main
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: The environment to deploy to (`staging` or `production`)
+        type: choice
+        required: true
+        options:
+          - staging
+          - production
+        default: staging
+
+env:
+  FLUTTER_VERSION: 3.19.12
+
+jobs:
+  android:
+    name: Build and Deploy Android
+    runs-on: ubuntu-latest
+
+    # Target the environment specified in the workflow_dispatch input. If this
+    # was triggered by a push event, default to the `staging` environment.
+    environment: ${{ github.event.inputs.environment || 'staging' }}
+
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        id: setup-flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+          channel: stable
+
+      - name: Install dependencies
+        id: install-dependencies
+        run: flutter pub get
+
+      # - name: Install Fastlane
+      #   run: |
+      #     sudo gem install fastlane -NV
+
+      # TODO: Remove the `--no-tree-shake-icons` flag. This is a temporary
+      #       workaround to avoid a known issue with tree shaking icons.
+      - if: ${{ github.event.inputs.environment == 'staging' }}
+        name: Build Android (Debug)
+        id: build-debug
+        run: |
+          flutter build apk --debug --no-tree-shake-icons
+
+      # TODO: Remove the `--no-tree-shake-icons` flag. This is a temporary
+      #       workaround to avoid a known issue with tree shaking icons.
+      - if: ${{ github.event.inputs.environment == 'production' }}
+        name: Build Android (Release)
+        id: build-release
+        run: |
+          flutter build apk --release --no-tree-shake-icons
+
+      # APK will be signed using the secrets specified in the repository
+      # environment secrets.
+      # - name: Sign APK
+      #   uses: r0adkll/sign-android-release@v1
+      #   id: sign-apk
+      #   with:
+      #     releaseDirectory: build/app/outputs/flutter-apk/
+      #     signingKeyBase64: ${{ secrets.ANDROID_KEYSTORE_FILE_BASE64 }}
+      #     alias: ${{ secrets.ANDROID_SIGNING_KEY_ALIAS }}
+      #     keyStorePassword: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      #     keyPassword: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
+
+      # - name: Deploy to Internal Testing Track
+      #   run: |
+      #     fastlane android deploy_internal_testing
+
+  # ios:
+  #   name: Build and Deploy iOS
+  #   runs-on: macos-latest
+
+  #   steps:
+  #     - name: Checkout
+  #       id: checkout
+  #       uses: actions/checkout@v4
+
+  #     - name: Setup Flutter
+  #       id: setup-flutter
+  #       uses: subosito/flutter-action@v2
+  #       with:
+  #         flutter-version: 3.19.12
+  #         channel: stable
+
+  #     - name: Install Fastlane
+  #       run: |
+  #         sudo gem install fastlane -NV
+
+  #     - name: Build iOS
+  #       run: |
+  #         flutter build ios --release --no-codesign
+
+  #     - name: Deploy to TestFlight
+  #       run: |
+  #         fastlane ios deploy_testflight
