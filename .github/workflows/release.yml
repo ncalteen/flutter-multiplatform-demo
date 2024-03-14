@@ -46,6 +46,8 @@ jobs:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
 
+      - run: ls /usr/local/lib/android/sdk/build-tools/
+
       - name: Setup Android
         id: setup-android
         uses: android-actions/setup-android@v3
@@ -59,6 +61,8 @@ jobs:
         run: |
           sdkmanager --install "build-tools;${{ env.ANDROID_SDK_VERSION }}"
           sdkmanager "platforms;android-${{ env.ANDROID_SDK_MAJOR }}"
+
+      - run: ls /usr/local/lib/android/sdk/build-tools/
 
       - name: Setup Flutter
         id: setup-flutter
