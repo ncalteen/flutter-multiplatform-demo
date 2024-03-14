@@ -23,7 +23,8 @@ platform :android do
     upload_to_play_store(
       track: 'internal',
       aab: '../build/app/outputs/bundle/release/app-release.aab',
-      json_key_data: ENV['ANDROID_SERVICE_ACCOUNT_JSON']
+      json_key_data: ENV['ANDROID_SERVICE_ACCOUNT_JSON'],
+      package_name: ENV['ANDROID_PACKAGE_NAME']
     )
   end
 
@@ -34,7 +35,8 @@ platform :android do
     upload_to_play_store(
       track: 'production',
       aab: '../build/app/outputs/bundle/release/app-release.aab',
-      json_key_data: ENV['ANDROID_SERVICE_ACCOUNT_JSON']
+      json_key_data: ENV['ANDROID_SERVICE_ACCOUNT_JSON'],
+      package_name: ENV['ANDROID_PACKAGE_NAME']
     )
   end
 end

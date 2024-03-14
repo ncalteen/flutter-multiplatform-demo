@@ -26,7 +26,7 @@ env:
 
 jobs:
   android:
-    name: Build and Deploy Android
+    name: Build and Deploy (Android)
     runs-on: ubuntu-latest
 
     # Target the environment specified in the workflow_dispatch input. If this
@@ -64,7 +64,7 @@ jobs:
         id: install-dependencies
         run: flutter pub get
 
-      - name: Build Android Release
+      - name: Build Release
         id: build-release
         run: |
           flutter build appbundle --release
@@ -73,7 +73,7 @@ jobs:
       # environment secrets.
       # prettier-ignore
       - name: Sign Bundle
-        id: sign-aab
+        id: sign-bundle
         uses: r0adkll/sign-android-release@v1
         env:
           BUILD_TOOLS_VERSION: ${{ env.ANDROID_SDK_VERSION }}
@@ -84,13 +84,13 @@ jobs:
           releaseDirectory: ${{ github.workspace }}/build/app/outputs/bundle/release/
           signingKeyBase64: ${{ secrets.ANDROID_KEYSTORE_FILE_BASE64 }}
 
-      # (Optional) Upload the signed bundle as a GitHub Actions artifact.
-      - name: Upload Signed App Bundle
-        id: upload-aab
+      # (Optional) Upload the bundle as a GitHub Actions artifact.
+      - name: Upload Bundle
+        id: upload-bundle
         uses: actions/upload-artifact@v4
         with:
-          name: signed-app-bundle
-          path: ${{steps.sign-aab.outputs.signedReleaseFile}}
+          name: android-bundle
+          path: ${{ steps.sign-bundle.outputs.signedReleaseFile }}
 
       # prettier-ignore
       - name: Upload with Fastlane
@@ -108,34 +108,72 @@ jobs:
       #   with:
       #     mappingFile: ${{ github.workspace }}/build/app/outputs/mapping/release/mapping.txt
       #     packageName: ${{ env.ANDROID_PACKAGE_NAME }}
-      #     releaseFiles: ${{ steps.sign-aab.outputs.signedReleaseFile }}
+      #     releaseFiles: ${{ steps.sign-bundle.outputs.signedReleaseFile }}
       #     serviceAccountJsonPlainText: ${{ secrets.ANDROID_SERVICE_ACCOUNT_JSON }}
       #     track: ${{ github.event.inputs.environment == 'staging' && 'internal' || 'release' }}
 
-  # ios:
-  #   name: Build and Deploy iOS
-  #   runs-on: macos-latest
+  ios:
+    name: Build and Deploy (iOS)
+    runs-on: macos-latest
 
-  #   steps:
-  #     - name: Checkout
-  #       id: checkout
-  #       uses: actions/checkout@v4
+    # Target the environment specified in the workflow_dispatch input. If this
+    # was triggered by a push event, default to the `staging` environment.
+    environment: ${{ github.event.inputs.environment || 'staging' }}
 
-  #     - name: Setup Flutter
-  #       id: setup-flutter
-  #       uses: subosito/flutter-action@v2
-  #       with:
-  #         flutter-version: 3.19.12
-  #         channel: stable
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
 
-  #     - name: Install Fastlane
-  #       run: |
-  #         sudo gem install fastlane -NV
+      - name: Setup Java
+        id: setup-java
+        uses: actions/setup-java@v4
+        with:
+          cache: gradle
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
 
-  #     - name: Build iOS
-  #       run: |
-  #         flutter build ios --release --no-codesign
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+          ruby-version: ${{ env.RUBY_VERSION}}
 
-  #     - name: Deploy to TestFlight
-  #       run: |
-  #         fastlane ios deploy_testflight
+      - name: Setup Flutter
+        id: setup-flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+          channel: stable
+
+      # Note: XCode handles signing automatically.
+      - name: Build Release
+        id: build-release
+        run: |
+          flutter build ipa --release
+
+      # (Optional) Upload the bundle as a GitHub Actions artifact.
+      # `flutter build ipa` builds to ${{ github.workspace }}/build/ios/ipa
+      # `flutter build ios` builds to ${{ github.workspace }}/build/ios/iphoneos
+      - name: Upload Bundle
+        id: upload-bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-bundle
+          path: ${{ github.workspace }}/build/ios/ipa
+
+      # prettier-ignore
+      - name: Upload with Fastlane
+        id: upload-fastlane
+        working-directory: ${{ github.workspace }}/ios
+        env:
+          APPLE_APP_ID: ${{ secrets.APPLE_APP_ID }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ITC_TEAM_ID: ${{ secrets.APPLE_ITC_TEAM_ID }}
+          APPLE_STORE_CONNECT_API_KEY_ID: ${{ secrets.APPLE_STORE_CONNECT_API_KEY_ID }}
+          APPLE_STORE_CONNECT_ISSUER_ID: ${{ secrets.APPLE_STORE_CONNECT_ISSUER_ID }}
+          APPLE_STORE_CONNECT_KEY_FILE: ${{ secrets.APPLE_STORE_CONNECT_KEY_FILE }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          fastlane ${{ github.event.inputs.environment == 'staging' && 'internal' || 'production' }}
