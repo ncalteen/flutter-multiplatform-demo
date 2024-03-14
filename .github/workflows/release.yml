@@ -18,7 +18,6 @@ on:
         default: staging
 
 env:
-  ANDROID_SDK_MAJOR: 34
   ANDROID_SDK_VERSION: 34.0.0
   FLUTTER_VERSION: 3.x
   JAVA_VERSION: 21
@@ -40,25 +39,11 @@ jobs:
 
       - name: Setup Java
         id: setup-java
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v4
         with:
           cache: gradle
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
-
-      # - name: Setup Android
-      #   id: setup-android
-      #   uses: android-actions/setup-android@v3
-      #   with:
-      #     # (Optional) Set to true to log the accepted licenses, otherwise they
-      #     # will be silently accepted.
-      #     log-accepted-android-sdk-licenses: false
-
-      # - name: Setup Android Build Tools
-      #   id: setup-build-tools
-      #   run: |
-      #     sdkmanager --install "build-tools;${{ env.ANDROID_SDK_VERSION }}"
-      #     sdkmanager "platforms;android-${{ env.ANDROID_SDK_MAJOR }}"
 
       - name: Setup Flutter
         id: setup-flutter
@@ -82,7 +67,7 @@ jobs:
         name: Build Android (Debug)
         id: build-debug
         run: |
-          flutter build apk --debug --no-tree-shake-icons
+          flutter build appbundle --debug
 
       # TODO: Remove the `--no-tree-shake-icons` flag. This is a temporary
       #       workaround to avoid a known issue with tree shaking icons.
@@ -90,7 +75,7 @@ jobs:
         name: Build Android (Release)
         id: build-release
         run: |
-          flutter build apk --release --no-tree-shake-icons
+          flutter build appbundle --release
 
       # APK will be signed using the secrets specified in the repository
       # environment secrets.
