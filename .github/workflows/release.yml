@@ -46,29 +46,23 @@ jobs:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
 
-      - run: ls /usr/local/lib/android/sdk/build-tools/
+      # - name: Setup Android
+      #   id: setup-android
+      #   uses: android-actions/setup-android@v3
+      #   with:
+      #     # (Optional) Set to true to log the accepted licenses, otherwise they
+      #     # will be silently accepted.
+      #     log-accepted-android-sdk-licenses: false
 
-      - name: Setup Android
-        id: setup-android
-        uses: android-actions/setup-android@v3
-        with:
-          # (Optional) Set to true to log the accepted licenses, otherwise they
-          # will be silently accepted.
-          log-accepted-android-sdk-licenses: false
-
-      - name: Setup Android Build Tools
-        id: setup-build-tools
-        run: |
-          sdkmanager --install "build-tools;${{ env.ANDROID_SDK_VERSION }}"
-          sdkmanager "platforms;android-${{ env.ANDROID_SDK_MAJOR }}"
-
-      - run: ls /usr/local/lib/android/sdk/build-tools/
+      # - name: Setup Android Build Tools
+      #   id: setup-build-tools
+      #   run: |
+      #     sdkmanager --install "build-tools;${{ env.ANDROID_SDK_VERSION }}"
+      #     sdkmanager "platforms;android-${{ env.ANDROID_SDK_MAJOR }}"
 
       - name: Setup Flutter
         id: setup-flutter
         uses: subosito/flutter-action@v2
-        env:
-          BUILD_TOOLS_VERSION: 34.0.0
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
@@ -102,8 +96,10 @@ jobs:
       # environment secrets.
       # prettier-ignore
       - name: Sign APK
-        uses: r0adkll/sign-android-release@v1
         id: sign-apk
+        uses: r0adkll/sign-android-release@v1
+        env:
+          BUILD_TOOLS_VERSION: ${{ env.ANDROID_SDK_VERSION }}
         with:
           alias: ${{ secrets.ANDROID_SIGNING_KEY_ALIAS }}
           keyPassword: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
@@ -122,6 +118,8 @@ jobs:
       # prettier-ignore
       # - name: Upload to Play Store (Internal Testing)
       #   uses: r0adkll/upload-google-play@v1.0.18
+      # env:
+      # BUILD_TOOLS_VERSION: ${{ env.ANDROID_SDK_VERSION }}
       #   with:
       #     mappingFile: ${{ github.workspace }}/build/app/outputs/mapping/release/mapping.txt
       #     packageName: ${{ env.ANDROID_PACKAGE_NAME }}
