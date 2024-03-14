@@ -21,7 +21,7 @@ env:
   ANDROID_SDK_VERSION: 34.0.0
   FLUTTER_VERSION: 3.x
   JAVA_VERSION: 21
-  ANDROID_PACKAGE_NAME: com.testgroup.flutter_github_actions_android
+  ANDROID_PACKAGE_NAME: com.ncalteen.flutter_multiplatform_demo
 
 jobs:
   android:
@@ -66,11 +66,11 @@ jobs:
         run: |
           flutter build appbundle --release
 
-      # APK will be signed using the secrets specified in the repository
+      # Bundle will be signed using the secrets specified in the repository
       # environment secrets.
       # prettier-ignore
-      - name: Sign APK
-        id: sign-apk
+      - name: Sign Bundle
+        id: sign-aab
         uses: r0adkll/sign-android-release@v1
         env:
           BUILD_TOOLS_VERSION: ${{ env.ANDROID_SDK_VERSION }}
@@ -81,23 +81,23 @@ jobs:
           releaseDirectory: ${{ github.workspace }}/build/app/outputs/bundle/release/
           signingKeyBase64: ${{ secrets.ANDROID_KEYSTORE_FILE_BASE64 }}
 
-      # (Optional) Upload the signed APK as a GitHub Actions artifact.
+      # (Optional) Upload the signed bundle as a GitHub Actions artifact.
       - name: Upload Signed App Bundle
-        id: upload-apk
+        id: upload-aab
         uses: actions/upload-artifact@v4
         with:
           name: signed-app-bundle
-          path: ${{steps.sign-apk.outputs.signedReleaseFile}}
+          path: ${{steps.sign-aab.outputs.signedReleaseFile}}
 
       # prettier-ignore
-      # - name: Upload to Play Store (Internal)
-      #   uses: r0adkll/upload-google-play@v1.0.18
-      #   with:
-      #     mappingFile: ${{ github.workspace }}/build/app/outputs/mapping/release/mapping.txt
-      #     packageName: ${{ env.ANDROID_PACKAGE_NAME }}
-      #     releaseFiles: ${{ steps.sign-apk.outputs.signedReleaseFile }}
-      #     serviceAccountJsonPlainText: ${{ secrets.ANDROID_SERVICE_ACCOUNT_JSON }}
-      #     track: ${{ github.event.inputs.environment == 'staging' && 'internal' || 'release' }}
+      - name: Upload to Play Store (Internal)
+        uses: r0adkll/upload-google-play@v1.0.18
+        with:
+          mappingFile: ${{ github.workspace }}/build/app/outputs/mapping/release/mapping.txt
+          packageName: ${{ env.ANDROID_PACKAGE_NAME }}
+          releaseFiles: ${{ steps.sign-aab.outputs.signedReleaseFile }}
+          serviceAccountJsonPlainText: ${{ secrets.ANDROID_SERVICE_ACCOUNT_JSON }}
+          track: ${{ github.event.inputs.environment == 'staging' && 'internal' || 'release' }}
 
   # ios:
   #   name: Build and Deploy iOS

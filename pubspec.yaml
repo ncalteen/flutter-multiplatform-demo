@@ -1,7 +1,7 @@
 name: flutter_multiplatform_demo
-description: "A new Flutter project."
+description: 'A new Flutter project.'
 
-publish_to: "none"
+publish_to: 'none'
 
 # Version and the build number may be overridden in `flutter build` by
 # specifying --build-name and --build-number, respectively.
@@ -11,10 +11,10 @@ publish_to: "none"
 
 # In iOS, build-name is used as CFBundleShortVersionString while build-number
 # is used as CFBundleVersion.
-version: 1.0.0+1
+version: 1.1.0+1
 
 environment:
-  sdk: ">=3.3.0 <4.0.0"
+  sdk: '>=3.3.0 <4.0.0'
 
 dependencies:
   flutter:
