@@ -10,6 +10,66 @@ The following workflows are included in this repository:
 
 ## Setup
 
+### Android
+
+1. Register on the [Google Play Console](https://play.google.com/console/signup)
+
+### Apple
+
+1. Create an [Apple Developer Account](https://developer.apple.com/programs/)
+1. Register your app on [App Store Connect](https://appstoreconnect.apple.com/)
+1. Request access to the
+   [App Store Connect API](https://developer.apple.com/app-store-connect/api/)
+1. Generate an
+   [App Store Connect API key](https://developer.apple.com/documentation/appstoreconnectapi/creating_api_keys_for_app_store_connect_api)
+
+Make sure to save the following information:
+
+- App Store Connect Issuer ID
+- App Store Connect API Key ID
+- App Store Connect API Key
+
+### Flutter/Fastlane
+
+When developing/testing locally, make sure to complete the following steps:
+
+1. Install Flutter locally by following
+   [their documentation](https://docs.flutter.dev/get-started/install).
+1. Install Fastlane locally by following
+   [their documentation](https://docs.fastlane.tools/).
+1. Follow the Flutter/Fastlane integration instructions
+   [here](https://docs.flutter.dev/deployment/cd#fastlane).
+1. Make sure your app builds locally for Android and iOS.
+
+   ```bash
+   # Android
+   flutter build appbundle
+
+   # iOS
+   flutter build ipa
+   ```
+
+   There is a good local development walkthrough in the
+   [Flutter documentation](https://docs.flutter.dev/deployment/cd#fastlane).
+
+1. Initialize the Android project
+
+   ```bash
+   cd ./android
+   fastlane init
+
+   # Follow the on-screen prompts
+   ```
+
+1. Initialize the iOS project
+
+   ```bash
+   cd ./ios
+   fastlane init
+
+   # Follow the on-screen prompts
+   ```
+
 ### Android Configuration
 
 > [!IMPORTANT]
@@ -87,10 +147,29 @@ The following workflows are included in this repository:
 
    Make sure to remove any leading/trailing whitespace!
 
-   | Name                           | Example     |
-   | ------------------------------ | ----------- |
-   | `ANDROID_KEYSTORE_FILE_BASE64` | `abc123...` |
-   | `ANDROID_KEYSTORE_PASSWORD`    | `P4ssw0rd!` |
-   | `ANDROID_SERVICE_ACCOUNT_JSON` | `{ ... }`   |
-   | `ANDROID_SIGNING_KEY_ALIAS`    | `YOUR_NAME` |
-   | `ANDROID_SIGNING_KEY_PASSWORD` | `P4ssw0rd!` |
+   | Name                                 | Description                                 |
+   | ------------------------------------ | ------------------------------------------- |
+   | `ANDROID_KEYSTORE_FILE_BASE64`       | Base64-encoded Android Keystore File        |
+   | `ANDROID_KEYSTORE_PASSWORD`          | Android Keystore Password                   |
+   | `ANDROID_SERVICE_ACCOUNT_JSON`       | GCP Service Account Credentials JSON        |
+   | `ANDROID_SIGNING_KEY_ALIAS`          | Android Signing Key Alias                   |
+   | `ANDROID_SIGNING_KEY_PASSWORD`       | Android Signing Key Password                |
+   | `APPLE_ID`                           | Apple ID                                    |
+   | `APPLE_TEAM_ID`                      | Apple Team ID                               |
+   | `APPLE_ITC_TEAM_ID`                  | Apple ITC Team ID                           |
+   | `APPLE_STORE_CONNECT_API_KEY_ID`     | App Store Connect API Key ID                |
+   | `APPLE_STORE_CONNECT_ISSUER_ID`      | App Store Connect Issuer ID                 |
+   | `APPLE_STORE_CONNECT_KEY_FILE`       | App Store Connect Key File                  |
+   | `APPLE_PROVISIONING_PROFILE_BASE64`  | Base64-encoded Apple Provisioning Profile   |
+   | `APPLE_SIGNING_CERTIFICATE_BASE64`   | Base64-encoded Apple Signing Certificate    |
+   | `APPLE_SIGNING_CERTIFICATE_PASSWORD` | Apple Signing Certificate Password          |
+   | `APPLE_KEYCHAIN_PASSWORD`            | Keychain Password (You can make up a value) |
+   | `FASTLANE_PASSWORD`                  | Apple ID Password                           |
+
+## Usage
+
+### `release.yml`
+
+When releasing to testing users, make sure to complete the following:
+
+1. [Distribute the app to beta testers on TestFlight](https://developer.apple.com/documentation/xcode/distributing-your-app-for-beta-testing-and-releases)
