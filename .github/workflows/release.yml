@@ -20,6 +20,7 @@ on:
 env:
   FLUTTER_VERSION: 3.x
   JAVA_VERSION: 21
+  ANDROID_PACKAGE_NAME: com.testgroup.flutter_github_actions_android
 
 jobs:
   android:
@@ -42,6 +43,14 @@ jobs:
           cache: gradle
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Setup Android
+        id: setup-android
+        uses: android-actions/setup-android@v3
+        with:
+          # (Optional) Set to true to log the accepted licenses, otherwise they
+          # will be silently accepted.
+          log-accepted-android-sdk-licenses: false
 
       - name: Setup Flutter
         id: setup-flutter
@@ -77,6 +86,7 @@ jobs:
 
       # APK will be signed using the secrets specified in the repository
       # environment secrets.
+      # prettier-ignore
       - name: Sign APK
         uses: r0adkll/sign-android-release@v1
         id: sign-apk
@@ -84,12 +94,26 @@ jobs:
           alias: ${{ secrets.ANDROID_SIGNING_KEY_ALIAS }}
           keyPassword: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
           keyStorePassword: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          releaseDirectory: build/app/outputs/flutter-apk/
+          releaseDirectory: ${{ github.workspace }}/build/app/outputs/flutter-apk/
           signingKeyBase64: ${{ secrets.ANDROID_KEYSTORE_FILE_BASE64 }}
 
-      # - name: Deploy to Internal Testing Track
-      #   run: |
-      #     fastlane android deploy_internal_testing
+      # (Optional) Upload the signed APK as a GitHub Actions artifact.
+      - name: Upload Signed App Bundle
+        id: upload-apk
+        uses: actions/upload-artifact@v4
+        with:
+          name: signed-app-bundle
+          path: ${{steps.sign-apk.outputs.signedReleaseFile}}
+
+      # prettier-ignore
+      # - name: Upload to Play Store (Internal Testing)
+      #   uses: r0adkll/upload-google-play@v1.0.18
+      #   with:
+      #     mappingFile: ${{ github.workspace }}/build/app/outputs/mapping/release/mapping.txt
+      #     packageName: ${{ env.ANDROID_PACKAGE_NAME }}
+      #     releaseFiles: ${{ steps.sign-apk.outputs.signedReleaseFile }}
+      #     serviceAccountJsonPlainText: ${{ secrets.ANDROID_SERVICE_ACCOUNT_JSON }}
+      #     track: internal
 
   # ios:
   #   name: Build and Deploy iOS

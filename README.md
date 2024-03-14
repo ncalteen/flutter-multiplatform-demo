@@ -12,6 +12,13 @@ The following workflows are included in this repository:
 
 ### Android Configuration
 
+> [!IMPORTANT]
+>
+> If you haven't done so already, make sure to
+> [manually upload the first release](https://support.google.com/googleplay/android-developer/answer/9859348?hl=en)
+> of the Android app to the Google Play Developer console. This is required in
+> order to perform automated releases later.
+
 1. Generate a signing key, making sure to replace `YOUR_NAME` in the command.
 
    > **IMPORTANT:** Make sure to save the password, as it will be needed when
@@ -55,6 +62,15 @@ The following workflows are included in this repository:
    base64 -i ./YOUR_NAME.keystore -o ./keystore-base64.txt
    ```
 
+1. Create a
+   [GCP service account](https://cloud.google.com/iam/docs/service-accounts-create).
+1. Generate a
+   [service account credentials JSON file](https://cloud.google.com/iam/docs/keys-create-delete).
+1. Enable the
+   [Google Play Android Developer API](https://console.cloud.google.com/marketplace/product/google/androidpublisher.googleapis.com).
+1. Invite the service account to your
+   [Google Play Developer account](https://play.google.com/console).
+
 ### GitHub Actions Configuration
 
 1. Create the following
@@ -63,17 +79,18 @@ The following workflows are included in this repository:
    - `staging`
    - `production`
 
-1. Create the following secrets in each environment.
+1. Create the following secrets in **each** environment.
 
    > The secret names must match **exactly** as described below. If any secret
    > values are the same for both environments, they can instead be created as
    > [repository-level secrets](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository).
 
-   > Make sure to remove any leading/trailing whitespace!
+   Make sure to remove any leading/trailing whitespace!
 
    | Name                           | Example     |
    | ------------------------------ | ----------- |
-   | `ANDROID_SIGNING_KEY_ALIAS`    | `YOUR_NAME` |
-   | `ANDROID_KEYSTORE_PASSWORD`    | `P4ssw0rd!` |
-   | `ANDROID_SIGNING_KEY_PASSWORD` | `P4ssw0rd!` |
    | `ANDROID_KEYSTORE_FILE_BASE64` | `abc123...` |
+   | `ANDROID_KEYSTORE_PASSWORD`    | `P4ssw0rd!` |
+   | `ANDROID_SERVICE_ACCOUNT_JSON` | `{ ... }`   |
+   | `ANDROID_SIGNING_KEY_ALIAS`    | `YOUR_NAME` |
+   | `ANDROID_SIGNING_KEY_PASSWORD` | `P4ssw0rd!` |
