@@ -90,7 +90,7 @@ jobs:
           path: ${{steps.sign-aab.outputs.signedReleaseFile}}
 
       # prettier-ignore
-      - name: Upload to Play Store (Internal)
+      - name: Upload to Play Store
         uses: r0adkll/upload-google-play@v1.0.18
         with:
           mappingFile: ${{ github.workspace }}/build/app/outputs/mapping/release/mapping.txt
