@@ -85,11 +85,12 @@ jobs:
         uses: r0adkll/sign-android-release@v1
         env:
           BUILD_TOOLS_VERSION: ${{ env.ANDROID_SDK_VERSION }}
+          RELEASE_DIRECTORY: ${{ github.workspace }}/build/app/outputs/bundle/${{ github.event.inputs.environment == 'staging' && 'debug' || 'release' }}
         with:
           alias: ${{ secrets.ANDROID_SIGNING_KEY_ALIAS }}
           keyPassword: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
           keyStorePassword: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          releaseDirectory: ${{ github.workspace }}/build/app/outputs/flutter-apk/
+          releaseDirectory: ${{ env.RELEASE_DIRECTORY }}
           signingKeyBase64: ${{ secrets.ANDROID_KEYSTORE_FILE_BASE64 }}
 
       # (Optional) Upload the signed APK as a GitHub Actions artifact.
