@@ -19,6 +19,7 @@ on:
 
 env:
   FLUTTER_VERSION: 3.x
+  JAVA_VERSION: 21
 
 jobs:
   android:
@@ -33,6 +34,14 @@ jobs:
       - name: Checkout
         id: checkout
         uses: actions/checkout@v4
+
+      - name: Setup Java
+        id: setup-java
+        uses: actions/setup-java@v2
+        with:
+          cache: gradle
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
 
       - name: Setup Flutter
         id: setup-flutter
