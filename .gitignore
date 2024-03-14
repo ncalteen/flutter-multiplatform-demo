@@ -48,3 +48,7 @@ keystore-base64.txt
 *.cer
 .creds
 private_keys/
+
+# Fastlane
+**/fastlane/README.md
+**/fastlane/report.xml
