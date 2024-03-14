@@ -18,6 +18,7 @@ on:
         default: staging
 
 env:
+  ANDROID_SDK_VERSION: 34.0.0
   FLUTTER_VERSION: 3.x
   JAVA_VERSION: 21
   ANDROID_PACKAGE_NAME: com.testgroup.flutter_github_actions_android
@@ -51,6 +52,12 @@ jobs:
           # (Optional) Set to true to log the accepted licenses, otherwise they
           # will be silently accepted.
           log-accepted-android-sdk-licenses: false
+
+      - name: Setup Android Build Tools
+        id: setup-build-tools
+        run: |
+          sdkmanager --install "build-tools;${{ env.ANDROID_SDK_VERSION }}"
+          sdkmanager "platforms;android-${{ env.ANDROID_SDK_VERSION }}"
 
       - name: Setup Flutter
         id: setup-flutter
