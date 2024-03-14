@@ -18,8 +18,6 @@ on:
         default: staging
 
 env:
-  ANDROID_PACKAGE_NAME: com.ncalteen.flutter_multiplatform_demo
-  ANDROID_SDK_VERSION: 34.0.0
   FLUTTER_VERSION: 3.x
   JAVA_VERSION: 21
   RUBY_VERSION: 3.3
@@ -32,6 +30,12 @@ jobs:
     # Target the environment specified in the workflow_dispatch input. If this
     # was triggered by a push event, default to the `staging` environment.
     environment: ${{ github.event.inputs.environment || 'staging' }}
+
+    env:
+      ANDROID_PACKAGE_NAME: com.ncalteen.flutter_multiplatform_demo
+      ANDROID_SDK_VERSION: 34.0.0
+      ANDROID_SERVICE_ACCOUNT_JSON: ${{ secrets.ANDROID_SERVICE_ACCOUNT_JSON }}
+      SUPPLY_PACKAGE_NAME: ${{ env.ANDROID_PACKAGE_NAME }}
 
     steps:
       - name: Checkout
@@ -96,9 +100,6 @@ jobs:
       - name: Upload with Fastlane
         id: upload-fastlane
         working-directory: ${{ github.workspace }}/android
-        env:
-          ANDROID_SERVICE_ACCOUNT_JSON: ${{ secrets.ANDROID_SERVICE_ACCOUNT_JSON }}
-          SUPPLY_PACKAGE_NAME: ${{ env.ANDROID_PACKAGE_NAME }}
         run: |
           fastlane ${{ github.event.inputs.environment == 'staging' && 'internal' || 'production' }}
 
@@ -119,6 +120,21 @@ jobs:
     # Target the environment specified in the workflow_dispatch input. If this
     # was triggered by a push event, default to the `staging` environment.
     environment: ${{ github.event.inputs.environment || 'staging' }}
+
+    # prettier-ignore
+    env:
+      APPLE_APP_ID: V3K7ZW9K9W.com.ncalteen.flutterMultiplatformDemo
+      APPLE_ID: ${{ secrets.APPLE_ID }}
+      APPLE_ITC_TEAM_ID: ${{ secrets.APPLE_ITC_TEAM_ID }}
+      APPLE_STORE_CONNECT_API_KEY_ID: ${{ secrets.APPLE_STORE_CONNECT_API_KEY_ID }}
+      APPLE_STORE_CONNECT_ISSUER_ID: ${{ secrets.APPLE_STORE_CONNECT_ISSUER_ID }}
+      APPLE_STORE_CONNECT_KEY_FILE: ${{ secrets.APPLE_STORE_CONNECT_KEY_FILE }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      FASTLANE_PASSWORD: ${{ secrets.FASTLANE_PASSWORD }}
+      APPLE_PROVISIONING_PROFILE_BASE64: ${{ secrets.APPLE_PROVISIONING_PROFILE_BASE64 }}
+      APPLE_SIGNING_CERTIFICATE_BASE64: ${{ secrets.APPLE_SIGNING_CERTIFICATE_BASE64 }}
+      APPLE_SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_SIGNING_CERTIFICATE_PASSWORD }}
+      APPLE_KEYCHAIN_PASSWORD: ${{ secrets.APPLE_KEYCHAIN_PASSWORD }}
 
     steps:
       - name: Checkout
@@ -150,11 +166,6 @@ jobs:
       # prettier-ignore
       - name: Install Apple Provisioning Profile
         id: install-apple-provisioning-profile
-        env:
-          APPLE_PROVISIONING_PROFILE_BASE64: ${{ secrets.APPLE_PROVISIONING_PROFILE_BASE64 }}
-          APPLE_SIGNING_CERTIFICATE_BASE64: ${{ secrets.APPLE_SIGNING_CERTIFICATE_BASE64 }}
-          APPLE_SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_SIGNING_CERTIFICATE_PASSWORD }}
-          APPLE_KEYCHAIN_PASSWORD: ${{ secrets.APPLE_KEYCHAIN_PASSWORD }}
         run: |
           CERTIFICATE_PATH="$RUNNER_TEMP/build_certificate.p12"
           PP_PATH="$RUNNER_TEMP/build_pp.mobileprovision"
@@ -197,14 +208,5 @@ jobs:
       - name: Upload with Fastlane
         id: upload-fastlane
         working-directory: ${{ github.workspace }}/ios
-        env:
-          APPLE_APP_ID: ${{ secrets.APPLE_APP_ID }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_ITC_TEAM_ID: ${{ secrets.APPLE_ITC_TEAM_ID }}
-          APPLE_STORE_CONNECT_API_KEY_ID: ${{ secrets.APPLE_STORE_CONNECT_API_KEY_ID }}
-          APPLE_STORE_CONNECT_ISSUER_ID: ${{ secrets.APPLE_STORE_CONNECT_ISSUER_ID }}
-          APPLE_STORE_CONNECT_KEY_FILE: ${{ secrets.APPLE_STORE_CONNECT_KEY_FILE }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          FASTLANE_PASSWORD: ${{ secrets.FASTLANE_PASSWORD }}
         run: |
           fastlane ${{ github.event.inputs.environment == 'staging' && 'internal' || 'production' }}
