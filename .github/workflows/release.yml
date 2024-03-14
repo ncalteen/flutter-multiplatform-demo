@@ -147,7 +147,13 @@ jobs:
           cache: true
           channel: stable
 
-      # Note: XCode handles signing automatically.
+      - name: Install Apple Certificate
+        id: install-apple-certificate
+        uses: apple-actions/import-codesign-certs@v2
+        with:
+          p12-file-base64: ${{ secrets.APPLE_SIGNING_CERTIFICATE_BASE64 }}
+          p12-password: ${{ secrets.APPLE_SIGNING_CERTIFICATE_PASSWORD }}
+
       - name: Build Release
         id: build-release
         run: |
@@ -175,5 +181,6 @@ jobs:
           APPLE_STORE_CONNECT_ISSUER_ID: ${{ secrets.APPLE_STORE_CONNECT_ISSUER_ID }}
           APPLE_STORE_CONNECT_KEY_FILE: ${{ secrets.APPLE_STORE_CONNECT_KEY_FILE }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          FASTLANE_PASSWORD: ${{ secrets.FASTLANE_PASSWORD }}
         run: |
           fastlane ${{ github.event.inputs.environment == 'staging' && 'internal' || 'production' }}
