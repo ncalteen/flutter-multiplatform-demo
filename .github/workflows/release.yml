@@ -77,15 +77,15 @@ jobs:
 
       # APK will be signed using the secrets specified in the repository
       # environment secrets.
-      # - name: Sign APK
-      #   uses: r0adkll/sign-android-release@v1
-      #   id: sign-apk
-      #   with:
-      #     releaseDirectory: build/app/outputs/flutter-apk/
-      #     signingKeyBase64: ${{ secrets.ANDROID_KEYSTORE_FILE_BASE64 }}
-      #     alias: ${{ secrets.ANDROID_SIGNING_KEY_ALIAS }}
-      #     keyStorePassword: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-      #     keyPassword: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
+      - name: Sign APK
+        uses: r0adkll/sign-android-release@v1
+        id: sign-apk
+        with:
+          alias: ${{ secrets.ANDROID_SIGNING_KEY_ALIAS }}
+          keyPassword: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
+          keyStorePassword: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          releaseDirectory: build/app/outputs/flutter-apk/
+          signingKeyBase64: ${{ secrets.ANDROID_KEYSTORE_FILE_BASE64 }}
 
       # - name: Deploy to Internal Testing Track
       #   run: |
