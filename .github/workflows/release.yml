@@ -149,12 +149,6 @@ jobs:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
 
-      # - name: Setup Ruby
-      #   uses: ruby/setup-ruby@v1
-      #   with:
-      #     bundler-cache: true
-      #     ruby-version: ${{ env.RUBY_VERSION}}
-
       - name: Setup Flutter
         id: setup-flutter
         uses: subosito/flutter-action@v2
@@ -189,8 +183,15 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp "$PP_PATH" ~/Library/MobileDevice/Provisioning\ Profiles
 
+      - run: |
+          ls -la $RUNNER_TEMP/build_pp.mobileprovision
+          cat $RUNNER_TEMP/build_pp.mobileprovision
+      - run: |
+          ls -la ~/Library/MobileDevice/Provisioning\ Profiles
+          cat ~/Library/MobileDevice/Provisioning\ Profiles/build_pp.mobileprovision
+
       - name: Build and Release
         id: build-release
         working-directory: ${{ github.workspace }}/ios
         run: |
-          fastlane ${{ github.event.inputs.environment == 'staging' && 'internal' || 'production' }}
+          bundle exec fastlane ${{ github.event.inputs.environment == 'staging' && 'internal' || 'production' }}
