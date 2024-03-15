@@ -1,11 +1,12 @@
 name: Deploy to TestFlight and Android App Store
 
 on:
-  # TODO: Uncomment the following lines to enable automatic deployment upon any
-  #       push to the `main` branch.
-  # push:
-  #   branches:
-  #     - main
+  # (TODO) Uncomment the below section to trigger this workflow on creation of a
+  #        new release.
+  #
+  # release:
+  #   types:
+  #     - created
   workflow_dispatch:
     inputs:
       environment:
@@ -28,8 +29,8 @@ jobs:
     runs-on: ubuntu-latest
 
     # Target the environment specified in the workflow_dispatch input. If this
-    # was triggered by a push event, default to the `staging` environment.
-    environment: ${{ github.event.inputs.environment || 'staging' }}
+    # was triggered by a release event, default to the `production` environment.
+    environment: ${{ github.event.inputs.environment || 'production' }}
 
     env:
       ANDROID_PACKAGE_NAME: com.ncalteen.flutter_multiplaform
@@ -117,6 +118,10 @@ jobs:
     name: Build and Deploy (iOS)
     runs-on: macos-latest
 
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}/ios
+
     # Target the environment specified in the workflow_dispatch input. If this
     # was triggered by a push event, default to the `staging` environment.
     environment: ${{ github.event.inputs.environment || 'staging' }}
@@ -124,17 +129,18 @@ jobs:
     # prettier-ignore
     env:
       APPLE_ID: ${{ secrets.APPLE_ID }}
-      APPLE_KEYCHAIN_PASSWORD: ${{ secrets.APPLE_KEYCHAIN_PASSWORD }}
-      APPLE_PROVISIONING_PROFILE_BASE64: ${{ secrets.APPLE_PROVISIONING_PROFILE_BASE64 }}
-      APPLE_SIGNING_CERTIFICATE_BASE64: ${{ secrets.APPLE_SIGNING_CERTIFICATE_BASE64 }}
-      APPLE_SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_SIGNING_CERTIFICATE_PASSWORD }}
+      APPLE_USERNAME: ${{ secrets.APPLE_USERNAME }}
       APP_BUNDLE_IDENTIFIER: com.ncalteen.flutterMultiplaform
       APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
       APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
       APP_STORE_CONNECT_KEY_FILE: ${{ secrets.APP_STORE_CONNECT_KEY_FILE }}
-      # APPLE_ITC_TEAM_ID: ${{ secrets.APPLE_ITC_TEAM_ID }}
-      # APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-      # FASTLANE_PASSWORD: ${{ secrets.FASTLANE_PASSWORD }}
+      FASTLANE_MATCH_AWS_ACCESS_KEY_ID: ${{ secrets.FASTLANE_MATCH_AWS_ACCESS_KEY_ID }}
+      FASTLANE_MATCH_AWS_SECRET_ACCESS_KEY: ${{ secrets.FASTLANE_MATCH_AWS_SECRET_ACCESS_KEY }}
+      FASTLANE_MATCH_BUCKET_NAME: ${{ secrets.FASTLANE_MATCH_BUCKET_NAME }}
+      FASTLANE_MATCH_PASSWORD: ${{ secrets.FASTLANE_MATCH_PASSWORD }}
+      FASTLANE_PASSWORD: ${{ secrets.FASTLANE_PASSWORD }}
+      FASTLANE_USER: ${{ secrets.FASTLANE_USER }}
+      TEAM_ID: ${{ secrets.TEAM_ID }}
 
     steps:
       - name: Checkout
@@ -157,34 +163,17 @@ jobs:
           cache: true
           channel: stable
 
-      # prettier-ignore
-      - name: Install Apple Provisioning Profile
-        id: install-apple-provisioning-profile
+      - name: Setup Apple Certificates
+        id: setup-certificates
         run: |
-          CERTIFICATE_PATH="$RUNNER_TEMP/build_certificate.p12"
-          PP_PATH="$RUNNER_TEMP/build_pp.mobileprovision"
-          KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
+          fastlane setup_certificates
 
-          # Import certificate and provisioning profile
-          echo -n "$APPLE_SIGNING_CERTIFICATE_BASE64" | base64 --decode -o "$CERTIFICATE_PATH"
-          echo -n "$APPLE_PROVISIONING_PROFILE_BASE64" | base64 --decode -o "$PP_PATH"
+      - name: Run Tests
+        id: test
+        run: |
+          fastlane test
 
-          # Create temporary keychain
-          security create-keychain -p "$APPLE_KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
-          security unlock-keychain -p "$APPLE_KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-
-          # Import certificate to keychain
-          security import "$CERTIFICATE_PATH" -P "$APPLE_SIGNING_CERTIFICATE_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
-          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-          security list-keychain -d user -s "$KEYCHAIN_PATH"
-
-          # Apply provisioning profile
-          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          cp "$PP_PATH" ~/Library/MobileDevice/Provisioning\ Profiles
-
-      - name: Build and Release
-        id: build-release
-        working-directory: ${{ github.workspace }}/ios
+      - name: Build and Upload to TestFlight
+        id: build-upload
         run: |
           fastlane ${{ github.event.inputs.environment == 'staging' && 'internal' || 'production' }}
