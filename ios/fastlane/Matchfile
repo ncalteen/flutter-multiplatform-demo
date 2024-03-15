@@ -1,0 +1,13 @@
+storage_mode('s3')
+
+# Default type: development
+# Options: [appstore, adhoc, enterprise, development]
+type('development')
+
+app_identifier([ENV['APP_BUNDLE_IDENTIFIER']])
+s3_bucket(ENV['FASTLANE_MATCH_BUCKET_NAME'])
+s3_region(ENV['FASTLANE_MATCH_AWS_REGION'])
+s3_access_key(ENV['FASTLANE_MATCH_AWS_ACCESS_KEY_ID'])
+s3_secret_access_key(ENV['FASTLANE_MATCH_AWS_SECRET_ACCESS_KEY'])
+team_id(ENV['TEAM_ID'])
+username(ENV['APPLE_USERNAME'])
