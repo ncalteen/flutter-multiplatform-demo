@@ -44,6 +44,6 @@ app.*.map.json
 .env
 private_keys/
 test_output/
-ios/fastlane/report.xml
 *.zip
 *.ipa
+ios/fastlane/report.xml
