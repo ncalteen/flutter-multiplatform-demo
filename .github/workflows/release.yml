@@ -101,7 +101,7 @@ jobs:
         id: upload-fastlane
         working-directory: ${{ github.workspace }}/android
         run: |
-          fastlane ${{ github.event.inputs.environment == 'staging' && 'internal' || 'production' }}
+          bundle exec fastlane ${{ github.event.inputs.environment == 'staging' && 'internal' || 'production' }}
 
       # prettier-ignore
       # - name: Upload to Play Store
@@ -192,4 +192,4 @@ jobs:
       - name: Build and Release
         id: build-release
         run: |
-          fastlane ${{ github.event.inputs.environment == 'staging' && 'internal' || 'production' }}
+          bundle exec fastlane ${{ github.event.inputs.environment == 'staging' && 'internal' || 'production' }}
