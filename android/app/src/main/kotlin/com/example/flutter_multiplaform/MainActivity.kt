@@ -1,4 +1,4 @@
-package com.ncalteen.flutter_multiplatform_demo
+package com.ncalteen.flutter_multiplaform
 
 import io.flutter.embedding.android.FlutterActivity
 

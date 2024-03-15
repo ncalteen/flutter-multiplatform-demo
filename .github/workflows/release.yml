@@ -32,10 +32,10 @@ jobs:
     environment: ${{ github.event.inputs.environment || 'staging' }}
 
     env:
-      ANDROID_PACKAGE_NAME: com.ncalteen.flutter_multiplatform_demo
+      ANDROID_PACKAGE_NAME: com.ncalteen.flutter_multiplaform
       ANDROID_SDK_VERSION: 34.0.0
       ANDROID_SERVICE_ACCOUNT_JSON: ${{ secrets.ANDROID_SERVICE_ACCOUNT_JSON }}
-      SUPPLY_PACKAGE_NAME: com.ncalteen.flutter_multiplatform_demo
+      SUPPLY_PACKAGE_NAME: com.ncalteen.flutter_multiplaform
 
     steps:
       - name: Checkout
@@ -123,18 +123,18 @@ jobs:
 
     # prettier-ignore
     env:
-      APPLE_APP_ID: V3K7ZW9K9W.com.ncalteen.flutterMultiplatformDemo
+      APP_BUNDLE_IDENTIFIER: com.ncalteen.flutterMultiplaform
       APPLE_ID: ${{ secrets.APPLE_ID }}
-      APPLE_ITC_TEAM_ID: ${{ secrets.APPLE_ITC_TEAM_ID }}
-      APPLE_STORE_CONNECT_API_KEY_ID: ${{ secrets.APPLE_STORE_CONNECT_API_KEY_ID }}
-      APPLE_STORE_CONNECT_ISSUER_ID: ${{ secrets.APPLE_STORE_CONNECT_ISSUER_ID }}
-      APPLE_STORE_CONNECT_KEY_FILE: ${{ secrets.APPLE_STORE_CONNECT_KEY_FILE }}
-      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-      FASTLANE_PASSWORD: ${{ secrets.FASTLANE_PASSWORD }}
-      APPLE_PROVISIONING_PROFILE_BASE64: ${{ secrets.APPLE_PROVISIONING_PROFILE_BASE64 }}
-      APPLE_SIGNING_CERTIFICATE_BASE64: ${{ secrets.APPLE_SIGNING_CERTIFICATE_BASE64 }}
-      APPLE_SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_SIGNING_CERTIFICATE_PASSWORD }}
-      APPLE_KEYCHAIN_PASSWORD: ${{ secrets.APPLE_KEYCHAIN_PASSWORD }}
+      APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+      APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+      APP_STORE_CONNECT_KEY_FILE: ${{ secrets.APP_STORE_CONNECT_KEY_FILE }}
+      # APPLE_ITC_TEAM_ID: ${{ secrets.APPLE_ITC_TEAM_ID }}
+      # APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      # FASTLANE_PASSWORD: ${{ secrets.FASTLANE_PASSWORD }}
+      # APPLE_PROVISIONING_PROFILE_BASE64: ${{ secrets.APPLE_PROVISIONING_PROFILE_BASE64 }}
+      # APPLE_SIGNING_CERTIFICATE_BASE64: ${{ secrets.APPLE_SIGNING_CERTIFICATE_BASE64 }}
+      # APPLE_SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_SIGNING_CERTIFICATE_PASSWORD }}
+      # APPLE_KEYCHAIN_PASSWORD: ${{ secrets.APPLE_KEYCHAIN_PASSWORD }}
 
     steps:
       - name: Checkout
@@ -189,24 +189,7 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp "$PP_PATH" ~/Library/MobileDevice/Provisioning\ Profiles
 
-      - name: Build Release
+      - name: Build and Release
         id: build-release
-        run: |
-          flutter build ipa --release
-
-      # (Optional) Upload the bundle as a GitHub Actions artifact.
-      # `flutter build ipa` builds to ${{ github.workspace }}/build/ios/ipa
-      # `flutter build ios` builds to ${{ github.workspace }}/build/ios/iphoneos
-      - name: Upload Bundle
-        id: upload-bundle
-        uses: actions/upload-artifact@v4
-        with:
-          name: ios-bundle
-          path: ${{ github.workspace }}/build/ios/ipa
-
-      # prettier-ignore
-      - name: Upload with Fastlane
-        id: upload-fastlane
-        working-directory: ${{ github.workspace }}/ios
         run: |
           fastlane ${{ github.event.inputs.environment == 'staging' && 'internal' || 'production' }}

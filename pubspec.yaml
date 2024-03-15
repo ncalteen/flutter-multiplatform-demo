@@ -1,4 +1,4 @@
-name: flutter_multiplatform_demo
+name: flutter_multiplaform
 description: 'A new Flutter project.'
 
 publish_to: 'none'
@@ -11,7 +11,7 @@ publish_to: 'none'
 
 # In iOS, build-name is used as CFBundleShortVersionString while build-number
 # is used as CFBundleVersion.
-version: 1.2.0+5
+version: 1.0.0+1
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
