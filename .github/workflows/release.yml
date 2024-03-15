@@ -194,4 +194,4 @@ jobs:
         id: build-release
         working-directory: ${{ github.workspace }}/ios
         run: |
-          bundle exec fastlane ${{ github.event.inputs.environment == 'staging' && 'internal' || 'production' }}
+          fastlane ${{ github.event.inputs.environment == 'staging' && 'internal' || 'production' }}
