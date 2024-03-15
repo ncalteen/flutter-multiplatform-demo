@@ -7,7 +7,16 @@ platform :ios do
     increment_build_number(xcodeproj: "Runner.xcodeproj")
 
     # Build the app
-    build_app(workspace: "Runner.xcworkspace", scheme: "Runner")
+    build_app(
+      workspace: "Runner.xcworkspace",
+      scheme: "Runner",
+      export_method: "app-store", # ad-hoc|package
+      export_options: {
+        provisioningProfiles: { 
+          "com.ncalteen.flutter_multiplaform" => "iOSDistribution",
+        }
+      }
+    )
 
     # Generate a JWT to connect to App Store Connect
     app_store_connect_api_key(
