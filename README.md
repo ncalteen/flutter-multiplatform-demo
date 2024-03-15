@@ -187,3 +187,8 @@ When developing/testing locally, make sure to complete the following steps:
 When releasing to testing users, make sure to complete the following:
 
 1. [Distribute the app to beta testers on TestFlight](https://developer.apple.com/documentation/xcode/distributing-your-app-for-beta-testing-and-releases)
+
+## References
+
+- [Installing an Apple certificate on macOS runners for Xcode development](https://docs.github.com/en/actions/deployment/deploying-xcode-applications/installing-an-apple-certificate-on-macos-runners-for-xcode-development)
+- [Continuous Delivery with Flutter](https://docs.flutter.dev/deployment/cd#fastlane)

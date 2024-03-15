@@ -149,11 +149,11 @@ jobs:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
 
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          bundler-cache: true
-          ruby-version: ${{ env.RUBY_VERSION}}
+      # - name: Setup Ruby
+      #   uses: ruby/setup-ruby@v1
+      #   with:
+      #     bundler-cache: true
+      #     ruby-version: ${{ env.RUBY_VERSION}}
 
       - name: Setup Flutter
         id: setup-flutter
@@ -193,4 +193,4 @@ jobs:
         id: build-release
         working-directory: ${{ github.workspace }}/ios
         run: |
-          bundle exec fastlane ${{ github.event.inputs.environment == 'staging' && 'internal' || 'production' }}
+          fastlane ${{ github.event.inputs.environment == 'staging' && 'internal' || 'production' }}
