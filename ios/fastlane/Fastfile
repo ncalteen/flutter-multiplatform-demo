@@ -13,7 +13,7 @@ platform :ios do
   desc 'Setup Certificates'
   lane :setup_certificates do
     # Sets up a temporary keychain on CI builds
-    setup_ci(timeout: 0)
+    setup_ci(timeout: 0) if ENV['CI']
 
     match(
       type: 'development',
@@ -58,7 +58,7 @@ platform :ios do
     #      slack_channel: ENV["SLACK_CHANNEL"])
   end
 
-  desc 'Deploy to App Store Connect (TestFlight)'
+  desc 'Deploy to TestFlight (Internal)'
   lane :internal do
     # Generate a JWT to connect to App Store Connect
     app_store_connect_api_key(
@@ -109,7 +109,7 @@ platform :ios do
     raise e
   end
 
-  desc 'Deploy to App Store Connect'
+  desc 'Deploy to TestFlight (Production)'
   lane :production do
     # TODO: capture_screenshots
     # https://docs.fastlane.tools/getting-started/ios/screenshots/
