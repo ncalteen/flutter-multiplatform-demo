@@ -30,9 +30,9 @@ platform :android do
 
     # Create a keystore.properties file
     File.write('../keystore.properties', <<~EOF
-      keyAlias=#{ENV['ANDROID_KEYSTORE_ALIAS']}
+      keyAlias=#{ENV['ANDROID_SIGNING_KEY_ALIAS']}
       keyPassword=#{ENV['ANDROID_SIGNING_KEY_PASSWORD']}
-      storeFile=keystore.jks
+      storeFile=../keystore.jks
       storePassword=#{ENV['ANDROID_KEYSTORE_PASSWORD']}
     EOF
     )
@@ -46,7 +46,7 @@ platform :android do
     # Upload the app to Google Play
     upload_to_play_store(
       track: 'internal',
-      aab: '../build/app/outputs/bundle/debug/app-debug.aab',
+      aab: '../build/app/outputs/bundle/release/app-release.aab',
       json_key_data: ENV['ANDROID_SERVICE_ACCOUNT_JSON'],
       package_name: ENV['ANDROID_PACKAGE_NAME']
     )

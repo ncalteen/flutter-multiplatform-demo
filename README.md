@@ -109,18 +109,7 @@ profiles.
 ### Android Configuration
 
 1. Register on the [Google Play Console](https://play.google.com/console/signup)
-1. Generate a signing key, making sure to replace `ALIAS` in the command.
-
-   > **IMPORTANT:** Make sure to save the password, as it will be needed when
-   > configuring GitHub Actions.
-
-   ```bash
-   sudo keytool -genkey -v \
-     -keyalg RSA -keysize 2048 -validity 10000 \
-     -keystore ALIAS.keystore \
-     -alias ALIAS
-   ```
-
+1. Generate your keystore using Android Studio
 1. Encode the generated `.keystore` file to base64, making sure to replace
    `ALIAS` in the command.
 
@@ -141,11 +130,11 @@ profiles.
 
    | Secret Name                    | Description                          |
    | ------------------------------ | ------------------------------------ |
-   | `ANDROID_KEYSTORE_ALIAS`       | Android Keystore Alias               |
    | `ANDROID_KEYSTORE_FILE_BASE64` | Base64-encoded Android Keystore File |
    |                                | `base64 -i <keystore-name>.keystore` |
    | `ANDROID_KEYSTORE_PASSWORD`    | Android Keystore Password            |
    | `ANDROID_SERVICE_ACCOUNT_JSON` | GCP Service Account Credentials JSON |
+   | `ANDROID_SIGNING_KEY_ALIAS`    | Android Signing Key Alias            |
    | `ANDROID_SIGNING_KEY_PASSWORD` | Android Signing Key Password         |
 
 > [!IMPORTANT]
@@ -161,6 +150,19 @@ profiles.
    | ---------------------- | --------------------------------------------- |
    | `ANDROID_PACKAGE_NAME` | Android Package Name (e.g. `com.example.app`) |
    | `SUPPLY_PACKAGE_NAME`  | Android Package Name (e.g. `com.example.app`) |
+
+If the keystore gets lost or needs to be replaced, follow the below steps:
+
+1. Generate a new keystore.
+1. Export your certificate.
+
+   ```bash
+   keytool -export -rfc -keystore KEYSTORE.jks -alias ALIAS -file CERTIFICATE.pem
+   ```
+
+1. Request an upload key reset, providing the exported key.
+
+   **Note:** This can take 1-2 days to be completed!
 
 ### Local Development
 
