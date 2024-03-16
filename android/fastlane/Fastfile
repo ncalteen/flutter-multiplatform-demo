@@ -59,6 +59,18 @@ platform :android do
     # TODO: Screenshots
     # https://docs.fastlane.tools/getting-started/android/screenshots/
 
+    # Convert the base64 encoded keystore file to a file
+    sh('echo $ANDROID_KEYSTORE_FILE_BASE64 | base64 --decode > ../keystore.jks')
+
+    # Create a keystore.properties file
+    File.write('../keystore.properties', <<~EOF
+      keyAlias=#{ENV['ANDROID_SIGNING_KEY_ALIAS']}
+      keyPassword=#{ENV['ANDROID_SIGNING_KEY_PASSWORD']}
+      storeFile=../keystore.jks
+      storePassword=#{ENV['ANDROID_KEYSTORE_PASSWORD']}
+    EOF
+    )
+
     # Install Flutter dependencies
     sh('flutter pub get')
 

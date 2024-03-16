@@ -55,18 +55,18 @@ profiles.
 
 ### Apple Developer Account
 
-1. Create an [Apple Developer Account](https://developer.apple.com/programs/)
+1. Create an [Apple Developer Account](https://developer.apple.com/programs/).
 
    > **Note:** Fastlane recommends a shared account when using `match`. Each
    > developer will have their own local development certificate and
    > provisioning profile, but it allows for easier centralized management.
 
 1. [Register your app](https://developer.apple.com/help/app-store-connect/create-an-app-record/add-a-new-app/)
-   on [App Store Connect](https://appstoreconnect.apple.com/)
+   on [App Store Connect](https://appstoreconnect.apple.com/).
 1. Request access to the
-   [App Store Connect API](https://developer.apple.com/app-store-connect/api/)
+   [App Store Connect API](https://developer.apple.com/app-store-connect/api/).
 1. Generate an
-   [App Store Connect API key](https://developer.apple.com/documentation/appstoreconnectapi/creating_api_keys_for_app_store_connect_api)
+   [App Store Connect API key](https://developer.apple.com/documentation/appstoreconnectapi/creating_api_keys_for_app_store_connect_api).
 1. Save the following information as GitHub Actions secrets for each
    environment.
 
@@ -108,13 +108,18 @@ profiles.
 
 ### Android Configuration
 
-1. Register on the [Google Play Console](https://play.google.com/console/signup)
-1. Generate your keystore using Android Studio
-1. Encode the generated `.keystore` file to base64, making sure to replace
-   `ALIAS` in the command.
+1. Register on the
+   [Google Play Console](https://play.google.com/console/signup).
+1. Generate your upload key and keystore using
+   [Android Studio](https://developer.android.com/studio/publish/app-signing#generate-key).
+
+   > **Note:** Make sure to save the keystore path, keystore password, upload
+   > key alias, and upload key password.
+
+1. Encode the generated keystore file to base64.
 
    ```bash
-   base64 -i ./ALIAS.keystore -o ./keystore-base64.txt
+   base64 -i KEYSTORE_PATH -o ./upload-keystore-base64.txt
    ```
 
 1. Create a
@@ -130,8 +135,7 @@ profiles.
 
    | Secret Name                    | Description                          |
    | ------------------------------ | ------------------------------------ |
-   | `ANDROID_KEYSTORE_FILE_BASE64` | Base64-encoded Android Keystore File |
-   |                                | `base64 -i <keystore-name>.keystore` |
+   | `ANDROID_KEYSTORE_FILE_BASE64` | Base64-Encoded Android Keystore File |
    | `ANDROID_KEYSTORE_PASSWORD`    | Android Keystore Password            |
    | `ANDROID_SERVICE_ACCOUNT_JSON` | GCP Service Account Credentials JSON |
    | `ANDROID_SIGNING_KEY_ALIAS`    | Android Signing Key Alias            |
@@ -162,18 +166,39 @@ If the keystore gets lost or needs to be replaced, follow the below steps:
 
 1. Request an upload key reset, providing the exported key.
 
-   **Note:** This can take 1-2 days to be completed!
+   > **Note:** This can take 1-2 days to be completed!
 
-### Local Development
+### Files to Update
+
+The following files and projects will need to be updated when using this for
+your own project.
+
+- [`ios/config/ExportOptions.plist`](./ios/config/ExportOptions.plist)
+  - Update the provisioning profile to the one used by Fastlane match.
+- TODO: Finish list
+
+### Workflow Modifications
+
+In the [`release.yml`](./.github/workflows/release.yml), update the following:
+
+| Name                    | Description                 |
+| ----------------------- | --------------------------- |
+| `ANDROID_PACKAGE_NAME`  | Android Package Name        |
+| `APP_BUNDLE_IDENTIFIER` | Apple App Bundle Identifier |
+| `SUPPLY_PACKAGE_NAME`   | Android Package Name        |
+
+## Local Development
 
 When developing/testing locally, make sure to complete the following steps:
 
 1. [Install Flutter](https://docs.flutter.dev/get-started/install)
 1. [Install Fastlane](https://docs.fastlane.tools/)
-1. Set the following environment variables.
+1. Copy [`.env.example`](./.env.example) to `.env` and fill out the values
+1. Load the `.env` into your environment variables
 
-   | Name | Description |
-   | ---- | ----------- |
+   ```bash
+   source .env
+   ```
 
 1. Configure Fastlane match.
 
@@ -197,52 +222,25 @@ When developing/testing locally, make sure to complete the following steps:
    There is a good local development walkthrough in the
    [Flutter documentation](https://docs.flutter.dev/deployment/cd#fastlane).
 
-1. Initialize the Android project
+## Build and Publish Workflow ([`release.yml`](./.github/workflows/release.yml))
 
-   ```bash
-   cd ./android
-   fastlane init
+The relase workflow handles the bulk of building and publishing for Android and
+iOS. It supports the following functionality:
 
-   # Follow the on-screen prompts
-   ```
-
-1. Initialize the iOS project
-
-   ```bash
-   cd ./ios
-   fastlane init
-
-   # Follow the on-screen prompts
-   ```
-
-## Usage
-
-### `release.yml`
-
-When releasing to testing users, make sure to complete the following:
-
-1. [Distribute the app to beta testers on TestFlight](https://developer.apple.com/documentation/xcode/distributing-your-app-for-beta-testing-and-releases)
+- **Triggers:** Manual (`workflow_dispatch`) and creation of a release.
+- **Functionality:**
+  - Runs unit tests
+  - Builds and signs app bundles
+  - Deploys to Android and Google Play
+- **Notes:**
+  - The workflow uses GitHub Actions environments to track different settings
+    and secrets needed to deploy the app bundles
+  - When triggered by a release event, it defaults to **production** releases
+    (e.g. a new version of the app is deployed to the public app stores).
+  - When triggered manually, it defaults to **staging** relases (e.g. release to
+    TestFlight and Google Play internal track).
 
 ## References
 
 - [Installing an Apple certificate on macOS runners for Xcode development](https://docs.github.com/en/actions/deployment/deploying-xcode-applications/installing-an-apple-certificate-on-macos-runners-for-xcode-development)
 - [Continuous Delivery with Flutter](https://docs.flutter.dev/deployment/cd#fastlane)
-
-## Build and Publish Workflow
-
-The following workflows are included in this repository:
-
-- [`release.yml`](./.github/workflows/release.yml)
-
-### Workflow Modifications
-
-1. Update the following environment variables.
-
-   | Name                    | Description                                    |
-   | ----------------------- | ---------------------------------------------- |
-   | `APP_BUNDLE_IDENTIFIER` | App Bundle Identifier (e.g. `com.example.app`) |
-
-### Other
-
-Update this file:
-/Users/ncalteen/Workspace/ncalteen/flutter_multiplatform_demo/config/ExportOptions.plist

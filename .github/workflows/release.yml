@@ -1,22 +1,10 @@
-name: Deploy to TestFlight and Android App Store
+name: Deploy to Apple and Android App Stores
 
 on:
-  # (TODO) Uncomment the below section to trigger this workflow on creation of a
-  #        new release.
-  #
-  # release:
-  #   types:
-  #     - created
+  release:
+    types:
+      - created
   workflow_dispatch:
-    inputs:
-      environment:
-        description: The environment to deploy to (`staging` or `production`)
-        type: choice
-        required: true
-        options:
-          - staging
-          - production
-        default: staging
 
 env:
   FLUTTER_VERSION: 3.x
@@ -32,9 +20,21 @@ jobs:
       run:
         working-directory: ${{ github.workspace }}/android
 
-    # Target the environment specified in the workflow_dispatch input. If this
-    # was triggered by a release event, default to the `production` environment.
-    environment: ${{ github.event.inputs.environment || 'production' }}
+    # If this is a release event, target the 'production' environment, otherwise
+    # target 'staging'.
+    # prettier-ignore
+    environment: ${{ github.event_name == 'release' && 'production' || 'staging' }}
+
+    # TODO: Implement safeguards to ensure that deployments are only made from
+    # the main branch and with a valid version tag.
+
+    # TODO: If this is a release event, get the version from the release tag.
+
+    # TODO: Extract release details from the GitHub release text to be published
+    # as the update description for both iOS and Android.
+
+    # TODO: Include Sentry new version notification - ask @DevGlitch for the job
+    # code as we have this already in place for our flask app.
 
     env:
       ANDROID_KEYSTORE_FILE_BASE64: ${{ secrets.ANDROID_KEYSTORE_FILE_BASE64 }}
@@ -85,9 +85,10 @@ jobs:
       run:
         working-directory: ${{ github.workspace }}/ios
 
-    # Target the environment specified in the workflow_dispatch input. If this
-    # was triggered by a push event, default to the `staging` environment.
-    environment: ${{ github.event.inputs.environment || 'staging' }}
+    # If this is a release event, target the 'production' environment, otherwise
+    # target 'staging'.
+    # prettier-ignore
+    environment: ${{ github.event_name == 'release' && 'production' || 'staging' }}
 
     # prettier-ignore
     env:
