@@ -52,10 +52,10 @@ platform :ios do
 
     # (Optional) Replace the above command to run unit tests and report results
     #            to your Slack channel
-    # scan(workspace: "Runner.xcworkspace",
-    #      scheme: "Runner",
-    #      slack_url: ENV["SLACK_URL"],
-    #      slack_channel: ENV["SLACK_CHANNEL"])
+    # scan(workspace: 'Runner.xcworkspace',
+    #      scheme: 'Runner',
+    #      slack_url: ENV['SLACK_URL'],
+    #      slack_channel: ENV['SLACK_CHANNEL'])
   end
 
   desc 'Deploy to TestFlight (Internal)'
@@ -90,7 +90,7 @@ platform :ios do
 
     # Add git commits to changelog
     # TODO: Use something similar to pull from release notes
-    # changelog = download(url: "https://lookatmycms.com/changelog.txt")
+    # changelog = download(url: 'https://lookatmycms.com/changelog.txt')
     changelog_from_git_commits(
       merge_commit_filtering: 'exclude_merges'
     )
@@ -105,7 +105,11 @@ platform :ios do
     )
   rescue StandardError => e
     # (Optional) Uncomment the following to report the error to your Slack channel
-    # on_error(ENV["SLACK_URL"], "Deploy to App Store Connect (TestFlight)", ENV["SLACK_CHANNEL"], exception)
+    # slack(
+    #   slack_url: ENV['SLACK_URL'],
+    #   message: 'Deploy to TestFlight (Internal) Failure: ' + e.message,
+    #   channel: ENV['SLACK_CHANNEL']
+    # )
     raise e
   end
 
@@ -144,7 +148,7 @@ platform :ios do
 
     # Add git commits to changelog
     # TODO: Use something similar to pull from release notes
-    # changelog = download(url: "https://lookatmycms.com/changelog.txt")
+    # changelog = download(url: 'https://lookatmycms.com/changelog.txt')
     changelog_from_git_commits(
       merge_commit_filtering: 'exclude_merges'
     )
@@ -159,7 +163,11 @@ platform :ios do
     )
   rescue StandardError => e
     # (Optional) Uncomment the following to report the error to your Slack channel
-    # on_error(ENV["SLACK_URL"], "Deploy to App Store Connect (TestFlight)", ENV["SLACK_CHANNEL"], exception)
+    # slack(
+    #   slack_url: ENV['SLACK_URL'],
+    #   message: 'Deploy to TestFlight (Production) Failure: ' + e.message,
+    #   channel: ENV['SLACK_CHANNEL']
+    # )
     raise e
   end
 end

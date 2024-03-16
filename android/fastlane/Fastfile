@@ -1,36 +1,69 @@
-# This file contains the fastlane.tools configuration
-# You can find the documentation at https://docs.fastlane.tools
-#
-# For a list of all available actions, check out
-#
-#     https://docs.fastlane.tools/actions
-#
-# For a list of all available plugins, check out
-#
-#     https://docs.fastlane.tools/plugins/available-plugins
-#
-
-# Uncomment the line if you want fastlane to automatically update itself
-# update_fastlane
-
 default_platform(:android)
 
 platform :android do
-  desc "Google Play (Internal)"
+  desc 'Cleanup Workspace'
+  lane :clean do
+    clean_build_artifacts
+  end
+
+  desc 'Run Unit Tests'
+  lane :test do
+    gradle(task: 'test')
+  rescue StandardError => e
+    # (Optional) Uncomment the following to report the error to your Slack channel
+    # slack(
+    #   slack_url: ENV['SLACK_URL'],
+    #   message: 'Android Unit Test Failure: ' + e.message,
+    #   channel: ENV['SLACK_CHANNEL']
+    # )
+    raise e
+  end
+
+  desc 'Deploy to Google Play (Internal)'
   lane :internal do
     setup_ci if ENV['CI']
 
+    # increment_version_code?
+
+    # Convert the base64 encoded keystore file to a file
+    sh('echo $ANDROID_KEYSTORE_FILE_BASE64 | base64 --decode > ../keystore.jks')
+
+    # Create a keystore.properties file
+    File.write('../keystore.properties', <<~EOF
+      keyAlias=#{ENV['ANDROID_KEYSTORE_ALIAS']}
+      keyPassword=#{ENV['ANDROID_SIGNING_KEY_PASSWORD']}
+      storeFile=keystore.jks
+      storePassword=#{ENV['ANDROID_KEYSTORE_PASSWORD']}
+    EOF
+    )
+
+    # Install Flutter dependencies
+    sh('flutter pub get')
+
+    # Build the app
+    sh('flutter build appbundle --debug')
+
+    # Upload the app to Google Play
     upload_to_play_store(
       track: 'internal',
-      aab: '../build/app/outputs/bundle/release/app-release.aab',
+      aab: '../build/app/outputs/bundle/debug/app-debug.aab',
       json_key_data: ENV['ANDROID_SERVICE_ACCOUNT_JSON'],
       package_name: ENV['ANDROID_PACKAGE_NAME']
     )
   end
 
-  desc "Google Play (Production)"
+  desc 'Deploy to Google Play (Production)'
   lane :production do
     setup_ci if ENV['CI']
+
+    # TODO: Screenshots
+    # https://docs.fastlane.tools/getting-started/android/screenshots/
+
+    # Install Flutter dependencies
+    sh('flutter pub get')
+
+    # Build the app
+    sh('flutter build appbundle --release')
 
     upload_to_play_store(
       track: 'production',

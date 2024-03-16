@@ -15,13 +15,21 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 ## Android
 
+### android clean
+
+```sh
+[bundle exec] fastlane android clean
+```
+
+Cleanup Workspace
+
 ### android test
 
 ```sh
 [bundle exec] fastlane android test
 ```
 
-Runs all the tests
+Run Unit Tests
 
 ### android internal
 
@@ -29,15 +37,15 @@ Runs all the tests
 [bundle exec] fastlane android internal
 ```
 
-Google Play (Internal)
+Deploy to Google Play (Internal)
 
-### android deploy
+### android production
 
 ```sh
-[bundle exec] fastlane android deploy
+[bundle exec] fastlane android production
 ```
 
-Deploy a new version to the Google Play
+Deploy to Google Play (Production)
 
 ----
 
