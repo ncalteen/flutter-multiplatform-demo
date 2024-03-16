@@ -28,6 +28,10 @@ jobs:
     name: Build and Deploy (Android)
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}/android
+
     # Target the environment specified in the workflow_dispatch input. If this
     # was triggered by a release event, default to the `production` environment.
     environment: ${{ github.event.inputs.environment || 'production' }}
@@ -63,50 +67,15 @@ jobs:
           cache: true
           channel: stable
 
-      - name: Build Release
-        id: build-release
+      - name: Run Tests
+        id: test
         run: |
-          flutter build appbundle --release
+          fastlane test
 
-      # Bundle will be signed using the secrets specified in the repository
-      # environment secrets.
-      # prettier-ignore
-      - name: Sign Bundle
-        id: sign-bundle
-        uses: r0adkll/sign-android-release@v1
-        env:
-          BUILD_TOOLS_VERSION: ${{ env.ANDROID_SDK_VERSION }}
-        with:
-          alias: ${{ secrets.ANDROID_SIGNING_KEY_ALIAS }}
-          keyPassword: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
-          keyStorePassword: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          releaseDirectory: ${{ github.workspace }}/build/app/outputs/bundle/release/
-          signingKeyBase64: ${{ secrets.ANDROID_KEYSTORE_FILE_BASE64 }}
-
-      # (Optional) Upload the bundle as a GitHub Actions artifact.
-      - name: Upload Bundle
-        id: upload-bundle
-        uses: actions/upload-artifact@v4
-        with:
-          name: android-bundle
-          path: ${{ steps.sign-bundle.outputs.signedReleaseFile }}
-
-      # prettier-ignore
-      - name: Upload with Fastlane
-        id: upload-fastlane
-        working-directory: ${{ github.workspace }}/android
+      - name: Build and Upload to TestFlight
+        id: build-upload
         run: |
-          bundle exec fastlane ${{ github.event.inputs.environment == 'staging' && 'internal' || 'production' }}
-
-      # prettier-ignore
-      # - name: Upload to Play Store
-      #   uses: r0adkll/upload-google-play@v1.0.18
-      #   with:
-      #     mappingFile: ${{ github.workspace }}/build/app/outputs/mapping/release/mapping.txt
-      #     packageName: ${{ env.ANDROID_PACKAGE_NAME }}
-      #     releaseFiles: ${{ steps.sign-bundle.outputs.signedReleaseFile }}
-      #     serviceAccountJsonPlainText: ${{ secrets.ANDROID_SERVICE_ACCOUNT_JSON }}
-      #     track: ${{ github.event.inputs.environment == 'staging' && 'internal' || 'release' }}
+          fastlane ${{ github.event.inputs.environment == 'staging' && 'internal' || 'production' }}
 
   ios:
     name: Build and Deploy (iOS)
