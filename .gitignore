@@ -48,3 +48,4 @@ test_output/
 *.ipa
 ios/fastlane/report.xml
 android/fastlane/report.xml
+keystore.properties
