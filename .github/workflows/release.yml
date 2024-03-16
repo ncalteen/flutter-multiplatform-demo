@@ -33,9 +33,13 @@ jobs:
     environment: ${{ github.event.inputs.environment || 'production' }}
 
     env:
+      ANDROID_KEYSTORE_ALIAS: ${{ secrets.ANDROID_KEYSTORE_ALIAS }}
+      ANDROID_KEYSTORE_FILE_BASE64: ${{ secrets.ANDROID_KEYSTORE_FILE_BASE64 }}
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_SERVICE_ACCOUNT_JSON: ${{ secrets.ANDROID_SERVICE_ACCOUNT_JSON }}
+      ANDROID_SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
       ANDROID_PACKAGE_NAME: com.ncalteen.flutter_multiplaform
       ANDROID_SDK_VERSION: 34.0.0
-      ANDROID_SERVICE_ACCOUNT_JSON: ${{ secrets.ANDROID_SERVICE_ACCOUNT_JSON }}
       SUPPLY_PACKAGE_NAME: com.ncalteen.flutter_multiplaform
 
     steps:
@@ -51,12 +55,6 @@ jobs:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
 
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          bundler-cache: true
-          ruby-version: ${{ env.RUBY_VERSION}}
-
       - name: Setup Flutter
         id: setup-flutter
         uses: subosito/flutter-action@v2
@@ -64,10 +62,6 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
           channel: stable
-
-      - name: Install dependencies
-        id: install-dependencies
-        run: flutter pub get
 
       - name: Build Release
         id: build-release
@@ -134,6 +128,7 @@ jobs:
       APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
       APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
       APP_STORE_CONNECT_KEY_FILE: ${{ secrets.APP_STORE_CONNECT_KEY_FILE }}
+      EXPORT_OPTIONS_PLIST_PATH: ${{ github.workspace }}/ios/config/ExportOptions.plist
       FASTLANE_MATCH_AWS_ACCESS_KEY_ID: ${{ secrets.FASTLANE_MATCH_AWS_ACCESS_KEY_ID }}
       FASTLANE_MATCH_AWS_SECRET_ACCESS_KEY: ${{ secrets.FASTLANE_MATCH_AWS_SECRET_ACCESS_KEY }}
       FASTLANE_MATCH_BUCKET_NAME: ${{ secrets.FASTLANE_MATCH_BUCKET_NAME }}
